@@ -38,4 +38,11 @@ public class MyActivity extends ActionBarActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
 }

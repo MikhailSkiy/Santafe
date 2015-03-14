@@ -26,6 +26,19 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.mikhail.santafe.MyActivity" />
         </activity>
+
+        <provider
+            android:name=".data.SantafeProvider"
+            android:authorities="com.example.mikhail.santafe.app" />
+
+        <activity
+            android:name=".DishDetails"
+            android:label="@string/title_activity_dish_details"
+            android:parentActivityName=".DetailedMenu" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.mikhail.santafe.DetailedMenu" />
+        </activity>
     </application>
 
 </manifest>
