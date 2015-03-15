@@ -47,10 +47,10 @@
         </activity>
     </application>
 
-    <permisson
+    <permission
         android:name = "com.myapp.LICENSE_TO_KILL"
         android:protectionLevel="dangerous"
-        android:label="Licenced to Kill"></permisson>
+        android:label="Licenced to Kill"></permission>
 
 
 </manifest>
