@@ -14,7 +14,7 @@ import com.example.mikhail.santafe.data.SantafeContract.DishEntry;
 public class SantafeDbHelper extends SQLiteOpenHelper {
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public static final String DATABASE_NAME = "santafe.db";
 
@@ -47,6 +47,8 @@ public class SantafeDbHelper extends SQLiteOpenHelper {
 
                 DishEntry.COLUMN_PRICE + " INTEGER NOT NULL, " +
                 DishEntry.COLUMN_CCAL + " INTEGER NOT NULL, " +
+
+                DishEntry.COLUMN_IMAGE_ID + " INTEGER NOT NULL, " +
 
                 // Set up the category column as a foreign key to category table.
                 " FOREIGN KEY (" + DishEntry.COLUMN_CAT_KEY + ") REFERENCES " +

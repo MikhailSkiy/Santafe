@@ -1,15 +1,9 @@
 package com.example.mikhail.santafe;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 
 public class DishDetails extends ActionBarActivity {
@@ -20,7 +14,7 @@ public class DishDetails extends ActionBarActivity {
         setContentView(R.layout.activity_dish_details);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.container, new DetailFragment())
                     .commit();
         }
     }
@@ -49,28 +43,5 @@ public class DishDetails extends ActionBarActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
 
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            Intent intent = getActivity().getIntent();
-
-            View rootView = inflater.inflate(R.layout.fragment_dish_details, container, false);
-            String str;
-
-            if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
-                str = intent.getStringExtra(Intent.EXTRA_TEXT);
-
-
-                TextView detailTextView = (TextView) rootView.findViewById(R.id.dish_detail_textview);
-                detailTextView.setText(str);
-            }
-
-                return rootView;
-        }
-    }
 }

@@ -29,7 +29,13 @@
 
         <provider
             android:name=".data.SantafeProvider"
-            android:authorities="com.example.mikhail.santafe.app" />
+            android:authorities="com.example.mikhail.santafe.app"
+            android:permission="com.myapp.LICENSE_TO_KILL"
+            android:enabled="true"
+            android:exported="true"
+            />
+
+
 
         <activity
             android:name=".DishDetails"
@@ -40,5 +46,11 @@
                 android:value="com.example.mikhail.santafe.DetailedMenu" />
         </activity>
     </application>
+
+    <permisson
+        android:name = "com.myapp.LICENSE_TO_KILL"
+        android:protectionLevel="dangerous"
+        android:label="Licenced to Kill"></permisson>
+
 
 </manifest>

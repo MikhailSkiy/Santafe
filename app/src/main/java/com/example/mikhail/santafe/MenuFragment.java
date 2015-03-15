@@ -1,10 +1,12 @@
 package com.example.mikhail.santafe;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -12,15 +14,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.example.mikhail.santafe.data.SantafeContract;
 
-import java.util.ArrayList;
+public  class MenuFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-public  class MenuFragment extends Fragment {
-
+    private static final int FORECAST_LOADER = 0;
 
     private static final String[] FORECAST_COLUMNS = {
 // In this case the id needs to be fully qualified with a table name, since
@@ -34,7 +34,8 @@ public  class MenuFragment extends Fragment {
             SantafeContract.DishEntry.COLUMN_FULL_DESC,
             SantafeContract.DishEntry.COLUMN_CCAL,
             SantafeContract.DishEntry.COLUMN_PRICE,
-            SantafeContract.DishEntry.COLUMN_WEIGHT
+            SantafeContract.DishEntry.COLUMN_WEIGHT,
+            SantafeContract.DishEntry.COLUMN_CAT_KEY
 
 
     };
@@ -46,13 +47,12 @@ public  class MenuFragment extends Fragment {
     static final int COL_CCAL = 3;
     static final int COL_PRICE = 4;
     static final int COL_WEIGHT = 5;
+    static final int COL_CAT_KEY = 6;
 
-   // private MenuAdapter mMenuAdapter;
 
-    private ArrayAdapter<String> mMenuAdapter;
+    private MenuAdapter mMenuAdapter;
 
-    public MenuFragment() {
-    }
+    public MenuFragment() {}
 
      final String SALAD = "Салаты";
 
@@ -86,50 +86,46 @@ public  class MenuFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+       // Cursor cur = getActivity().getContentResolver().query(SantafeContract.CategoryEntry.CONTENT_URI,  null, null, null, null);
+
 //        // The CursorAdapter will take data from our cursor and populate the ListView.
-//        mMenuAdapter = new MenuAdapter(getActivity(), null, 0);
-//
-       // View rootView = inflater.inflate(R.layout.fragment_my, container, false);
-//
-//        // Get a reference to the ListView, and attach this adapter to it.
-       // ListView listView = (ListView) rootView.findViewById(R.id.listview_main);
-      //  listView.setAdapter(mMenuAdapter);
-
-
-
-
-                // The ArrayAdapter will take data from a source and
-                // use it to populate the ListView it's attached to.
-                mMenuAdapter =
-                new ArrayAdapter<String>(
-                        getActivity(), // The current context (this activity)
-                        R.layout.list_item_main_menu, // The name of the layout ID.
-                        R.id.list_item_main_menu_textview, // The ID of the textview to populate.
-                        new ArrayList<String>());
+        mMenuAdapter = new MenuAdapter(getActivity(), null, 0);
 
         View rootView = inflater.inflate(R.layout.fragment_my, container, false);
 
-        // Get a reference to the ListView, and attach this adapter to it.
+       // Get a reference to the ListView, and attach this adapter to it.
         ListView listView = (ListView) rootView.findViewById(R.id.listview_main);
         listView.setAdapter(mMenuAdapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
+       listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view,int position, long l)
-            {
-                String forecast = mMenuAdapter.getItem(position);
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+            // CursorAdapter returns a cursor at the correct position for getItem(), or null
+            // if it cannot seek to that position.
+            Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+            if (cursor != null) {
+            // String locationSetting = Utility.getPreferredLocation(getActivity());
+                int a =cursor.getColumnIndex(SantafeContract.CategoryEntry.COLUMN_CAT_TITLE);
+                String a2=  cursor.getString(a);
+            Intent intent = new Intent(getActivity(), DetailedMenu.class).setData(SantafeContract.DishEntry.buildDishCategory(
+                    cursor.getString(cursor.getColumnIndex(SantafeContract.CategoryEntry.COLUMN_CAT_TITLE)
+            )));
 
-                Intent intent = new Intent(getActivity(),DetailedMenu.class).putExtra(Intent.EXTRA_TEXT,forecast);
-                startActivity(intent);
-
-                // Toast toast = Toast.makeText(getActivity(), forecast, Toast.LENGTH_SHORT);
-                // toast.show();
+            startActivity(intent);
             }
-        }
-        );
+            }
+                    });
+
+
 
         return rootView;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(FORECAST_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
     }
 
 //    String[] getAllCategories() {
@@ -158,18 +154,49 @@ public  class MenuFragment extends Fragment {
 
 
     private void updateWeather() {
-        FetchMenuTask weatherTask = new FetchMenuTask(getActivity(), mMenuAdapter);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        String location = prefs.getString(getString(R.string.pref_location_key),
-//                getString(R.string.pref_location_default));
+        FetchMenuTask weatherTask = new FetchMenuTask(getActivity());
         weatherTask.execute();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-       // updateWeather();
+        //updateWeather();
     }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+       // String locationSetting = Utility.getPreferredLocation(getActivity());
+
+        // Sort order:  Ascending, by date.
+//        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+//        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
+//                locationSetting, System.currentTimeMillis());
+//
+//        return new CursorLoader(getActivity(),
+//                weatherForLocationUri,
+//                null,
+//                null,
+//                null,
+//                sortOrder);
+
+        return new CursorLoader(getActivity(),
+                SantafeContract.CategoryEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+        public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+                mMenuAdapter.swapCursor(cursor);
+            }
+
+                @Override
+        public void onLoaderReset(Loader<Cursor> cursorLoader) {
+                mMenuAdapter.swapCursor(null);
+            }
 
     }
 

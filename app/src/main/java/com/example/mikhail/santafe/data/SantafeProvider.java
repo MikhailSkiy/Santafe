@@ -22,6 +22,7 @@ public class SantafeProvider extends ContentProvider {
 
     static final int DISH = 100;
     static final int DISH_WITH_CATEGORY = 101;
+    static final int DISH_WITH_CATEGORY_AND_ID = 102;
     static final int CATEGORY = 300;
 
     private static final SQLiteQueryBuilder sDishByCategorySettingQueryBuilder;
@@ -44,6 +45,11 @@ public class SantafeProvider extends ContentProvider {
                         CategoryEntry.TABLE_NAME +
                                        "." + CategoryEntry.COLUMN_CAT_TITLE + " = ? ";
 
+    private static final String sCategorySettingAndIdSelection =
+            SantafeContract.CategoryEntry.TABLE_NAME +
+                    "." + CategoryEntry._ID + " = ? AND " +
+                    DishEntry.TABLE_NAME + "."  + DishEntry._ID + " = ? ";
+
     private Cursor getDishByCategorySetting(Uri uri, String[] projection, String sortOrder) {
         String categorySetting = DishEntry.getCategorySettingFromUri(uri);
 
@@ -62,6 +68,21 @@ public class SantafeProvider extends ContentProvider {
         );
     }
 
+    private Cursor getWeatherByLocationSettingAndDate(
+            Uri uri, String[] projection, String sortOrder) {
+        String categorySetting = SantafeContract.DishEntry.getCategorySettingFromUri(uri);
+        long dishId = SantafeContract.DishEntry.getDishIdFromUri(uri);
+
+        return sDishByCategorySettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+                projection,
+                sCategorySettingAndIdSelection,
+                new String[]{categorySetting , Long.toString(dishId)},
+                null,
+                null,
+                sortOrder
+        );
+    }
+
     static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
                 final String authority = SantafeContract.CONTENT_AUTHORITY;
@@ -69,6 +90,7 @@ public class SantafeProvider extends ContentProvider {
                 matcher.addURI(authority, SantafeContract.PATH_DISHES, DISH);
                 matcher.addURI(authority, SantafeContract.PATH_DISHES + "/*", DISH_WITH_CATEGORY);
                 matcher.addURI(authority, SantafeContract.PATH_CATEGORIES, CATEGORY);
+                matcher.addURI(authority, SantafeContract.PATH_DISHES + "/*/#", DISH_WITH_CATEGORY_AND_ID);
 
                 return matcher;
            }
@@ -87,6 +109,11 @@ public class SantafeProvider extends ContentProvider {
 
               case DISH_WITH_CATEGORY:
                   return SantafeContract.DishEntry.CONTENT_TYPE;
+
+              case DISH_WITH_CATEGORY_AND_ID:
+              return SantafeContract.DishEntry.CONTENT_ITEM_TYPE;
+
+
 
               case DISH:
                         return DishEntry.CONTENT_TYPE;
@@ -123,6 +150,12 @@ public class SantafeProvider extends ContentProvider {
                                null,
                                sortOrder
                        );
+                       break;
+                   }
+
+                   case DISH_WITH_CATEGORY_AND_ID:
+                   {
+                       retCursor = getWeatherByLocationSettingAndDate(uri, projection, sortOrder);
                        break;
                    }
                         // "category"

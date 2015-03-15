@@ -27,15 +27,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
 
-public class FetchMenuTask extends AsyncTask<String, Void, String[]> {
+public class FetchMenuTask extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = FetchMenuTask.class.getSimpleName();
     private ArrayAdapter<String> AdapterForMenu;
     private final Context mContext;
 
-    public FetchMenuTask(Context context, ArrayAdapter<String> menuAdapter) {
+    public FetchMenuTask(Context context) {
         mContext = context;
-        AdapterForMenu = menuAdapter;
     }
 
     private boolean DEBUG = true;
@@ -125,7 +124,7 @@ public class FetchMenuTask extends AsyncTask<String, Void, String[]> {
         return categoryId;
     }
 
-    private String[] getDataFromJson(String forecastJsonStr)
+    private void getDataFromJson(String forecastJsonStr)
             throws JSONException {
 
         final String TITLE = "DishTitle";
@@ -133,6 +132,7 @@ public class FetchMenuTask extends AsyncTask<String, Void, String[]> {
         final String PRICE = "Price";
         final String WEIGHT = "Weight";
         final String CCAL = "Ccal";
+        final String IMAGE_ID = "ImageId";
 
         final String CATEGORY_NAME = "CategoryName";
 
@@ -157,6 +157,7 @@ public class FetchMenuTask extends AsyncTask<String, Void, String[]> {
                 int weight;
                 int ccal;
                 String categoryName;
+                int imageId;
 
                 // Get the JSON object representing the dish
                 JSONObject dishObject = menuItems.getJSONObject(i);
@@ -166,6 +167,8 @@ public class FetchMenuTask extends AsyncTask<String, Void, String[]> {
                 price = dishObject.getInt(PRICE);
                 weight = dishObject.getInt(WEIGHT);
                 ccal = dishObject.getInt(CCAL);
+
+                imageId= dishObject.getInt(IMAGE_ID);
 
                 categoryName = dishObject.getString(CATEGORY_NAME);
 
@@ -183,14 +186,17 @@ public class FetchMenuTask extends AsyncTask<String, Void, String[]> {
                 dishValues.put(SantafeContract.DishEntry.COLUMN_WEIGHT, weight);
                 dishValues.put(SantafeContract.DishEntry.COLUMN_PRICE, price);
                 dishValues.put(SantafeContract.DishEntry.COLUMN_CCAL, ccal);
+                dishValues.put(SantafeContract.DishEntry.COLUMN_IMAGE_ID,imageId);
 
                 cVVector.add(dishValues);
             }
 
+            int inserted = 0;
+
             if (cVVector.size() > 0) {
                 ContentValues[] cvArray = new ContentValues[cVVector.size()];
                 cVVector.toArray(cvArray);
-                mContext.getContentResolver().bulkInsert(SantafeContract.DishEntry.CONTENT_URI, cvArray);
+                inserted = mContext.getContentResolver().bulkInsert(SantafeContract.DishEntry.CONTENT_URI, cvArray);
             }
 
 //            // Sort order:  Ascending, by date.
@@ -210,18 +216,17 @@ public class FetchMenuTask extends AsyncTask<String, Void, String[]> {
 //                } while (cur.moveToNext());
 //            }
 
+            Log.d(LOG_TAG, "FetchWeatherTask Complete. " + inserted + " Inserted");
 
-
-            Log.d(LOG_TAG, "FetchWeatherTask Complete. " + cVVector.size() + " Inserted");
-
-            String[] resultStrs = convertContentValuesToUXFormat(cVVector);
-            return resultStrs;
+            // Нужно было когда мы возвращали массив строк в меню, теперь мы просто записываем в бд
+            // А не каждый раз как было до этого
+           // String[] resultStrs = convertContentValuesToUXFormat(cVVector);
+           // return resultStrs;
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
-        return null;
     }
 
 
@@ -249,7 +254,7 @@ public class FetchMenuTask extends AsyncTask<String, Void, String[]> {
     }
 
     @Override
-    protected String[] doInBackground(String... params) {
+    protected Void doInBackground(String... params) {
 
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
@@ -313,7 +318,7 @@ public class FetchMenuTask extends AsyncTask<String, Void, String[]> {
         }
 
         try {
-            return getDataFromJson(forecastJsonStr);
+             getDataFromJson(forecastJsonStr);
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
@@ -321,14 +326,14 @@ public class FetchMenuTask extends AsyncTask<String, Void, String[]> {
         return null;
     }
 
-    @Override
-    protected void onPostExecute(String[] result) {
-        if (result != null && AdapterForMenu != null) {
-            AdapterForMenu.clear();
-            for(String dayForecastStr : result) {
-                AdapterForMenu.add(dayForecastStr);
-            }
-            // New data is back from the server.  Hooray!
-        }
-    }
+  //  @Override
+   // protected void onPostExecute(String[] result) {
+   //     if (result != null && AdapterForMenu != null) {
+   //         AdapterForMenu.clear();
+   //         for(String dayForecastStr : result) {
+   //             AdapterForMenu.add(dayForecastStr);
+   //         }
+   //         // New data is back from the server.  Hooray!
+    //    }
+    //}
 }

@@ -87,6 +87,12 @@ public class SantafeContract {
                 return ContentUris.withAppendedId(CONTENT_URI, id);
             }
 
+
+            public static Uri buildDishCategoryWithId(long categorySetting, long id) {
+                return CONTENT_URI.buildUpon().appendPath(Long.toString(categorySetting))
+                        .appendPath(Long.toString(id)).build();
+            }
+
             //For query with category of dish
             public static Uri buildDishCategory(String categorySetting) {
                 return CONTENT_URI.buildUpon().appendPath(categorySetting).build();
@@ -95,6 +101,12 @@ public class SantafeContract {
             public static String getCategorySettingFromUri(Uri uri) {
                             return uri.getPathSegments().get(1);
                        }
+
+
+
+            public static long getDishIdFromUri(Uri uri) {
+                return Long.parseLong(uri.getPathSegments().get(2));
+            }
 
             // Dish id as returned by API, to identify the icon to be used
             public static final String COLUMN_DISH_ID = "dish_id";
@@ -116,6 +128,8 @@ public class SantafeContract {
 
             // Weight
             public static final String COLUMN_WEIGHT = "weight";
+
+            public static  final String COLUMN_IMAGE_ID = "image_id";
 
         }
     }
