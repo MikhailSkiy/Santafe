@@ -7,10 +7,15 @@ import com.example.mikhail.santafe.data.SantafeContract;
 
 public class Utility {
 
-    final static String CURRENCY_RUB = "руб";
+//    final static String CURRENCY_RUB = "руб";
+//
+//    final static String WEGHT = "г";
+//    final static String CCAL = "ккал";
 
-    final static String WEGHT = "г";
-    final static String CCAL = "ккал";
+    final static String CURRENCY_RUB = "rub";
+
+    final static String WEGHT = "g";
+    final static String CCAL = "ccal";
 
     /**
      * Добавление валюты к цене

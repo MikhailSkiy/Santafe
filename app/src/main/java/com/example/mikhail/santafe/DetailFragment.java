@@ -2,13 +2,19 @@ package com.example.mikhail.santafe;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -47,15 +53,59 @@ public  class DetailFragment extends Fragment implements LoaderManager.LoaderCal
 
     private static final int DETAIL_LOADER = 0;
 
+    static final String DETAIL_URI = "URI";
+    private Uri mUri;
+    private ShareActionProvider mShareActionProvider;
+    private String DishTitle;
+   static final String VERB ="I am eating ";
+   static final String HASH_TAG=" #SantaFe";
 
-    public DetailFragment() {
+
+    public DetailFragment() {setHasOptionsMenu(true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_dish_details, container, false);
+
+        Bundle arguments = getArguments();
+                if (arguments != null) {
+                        mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
+                    }
+        View rootView = inflater.inflate(R.layout.fragment_dish_details, container, false);
+        TextView mTitleView = (TextView) rootView.findViewById(R.id.dish_detail_textview);
+        TextView mFriendlyDateView = (TextView) rootView.findViewById(R.id.detail_dish_description);
+
+
+
+        return  rootView;
     }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.dish_details, menu);
+
+        // Retrieve the share menu item
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+
+        // Get the provider and hold onto it to set/change the share intent.
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+        // If onLoadFinished happens before this, we can go ahead and set the share intent now.
+
+        mShareActionProvider.setShareIntent(createShareForecastIntent());
+    }
+
+
+    private Intent createShareForecastIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, VERB+DishTitle+HASH_TAG);
+        return shareIntent;
+    }
+
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -66,21 +116,24 @@ public  class DetailFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.v(LOG_TAG, "In onCreateLoader");
-        Intent intent = getActivity().getIntent();
-        if (intent == null) {
-            return null;
+//        Intent intent = getActivity().getIntent();
+//        if (intent == null) {
+//            return null;
+//        }
+        if ( null != mUri ) {
+            // Now create and return a CursorLoader that will take care of
+            // creating a Cursor for the data being displayed.
+            return new CursorLoader(
+                    getActivity(),
+                    //intent.getData(),
+                    mUri,
+                    FORECAST_COLUMNS,
+                    null,
+                    null,
+                    null
+            );
         }
-
-        // Now create and return a CursorLoader that will take care of
-        // creating a Cursor for the data being displayed.
-        return new CursorLoader(
-                getActivity(),
-                intent.getData(),
-                FORECAST_COLUMNS,
-                null,
-                null,
-                null
-        );
+        return null;
     }
 
     @Override
@@ -103,9 +156,11 @@ public  class DetailFragment extends Fragment implements LoaderManager.LoaderCal
         dishIcon.setImageResource(Utility.getIconResourceForWeatherCondition(Integer.parseInt(imageId)));
 
         // Set the title of dish
+
         String title = Utility.convertTitleForUX(data);
         TextView detailTextView = (TextView) getView().findViewById(R.id.dish_detail_textview);
         detailTextView.setText(title);
+        DishTitle =  title;
 
         // Set the price
         String formattedPrice= Utility.getPriceForUX(data);

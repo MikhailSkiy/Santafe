@@ -9,5 +9,6 @@
     <string name="action_refresh">Refresh</string>
     <string name="title_activity_detailed_menu">DetailedMenu</string>
     <string name="title_activity_dish_details">DishDetails</string>
+    <string name = "action_share">Share</string>
 
 </resources>

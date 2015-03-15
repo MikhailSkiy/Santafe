@@ -2,6 +2,7 @@ package com.example.mikhail.santafe;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -24,9 +25,13 @@ import java.util.List;
  */
 public  class DetailedMenuFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    final String SALAD = SantafeContract.DishEntry.buildDishCategory("Салаты").toString();
-    final String COLD = SantafeContract.DishEntry.buildDishCategory("Холодные закуски").toString();
-    final String HOT = SantafeContract.DishEntry.buildDishCategory("Горячие закуски").toString();
+//    final String SALAD = SantafeContract.DishEntry.buildDishCategory("Салаты").toString();
+//    final String COLD = SantafeContract.DishEntry.buildDishCategory("Холодные закуски").toString();
+//    final String HOT = SantafeContract.DishEntry.buildDishCategory("Горячие закуски").toString();
+
+    final String SALAD = SantafeContract.DishEntry.buildDishCategory("Salads").toString();
+    final String COLD = SantafeContract.DishEntry.buildDishCategory("Cold dishes").toString();
+    final String HOT = SantafeContract.DishEntry.buildDishCategory("Hot dishes").toString();
 
     final int SALAD_KEY = 1;
     final int COLD_DISH_KEY = 2;
@@ -62,12 +67,19 @@ public  class DetailedMenuFragment extends Fragment implements LoaderManager.Loa
     private DetailedMenuAdapter  mMenuAdapter;
 
 
+
+    public interface Callback {
+        public void onItemSelected(Uri dateUri);
+    }
+
     public DetailedMenuFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+
 
        // return inflater.inflate(R.layout.fragment_detailed_menu, container, false);
 
@@ -91,13 +103,18 @@ public  class DetailedMenuFragment extends Fragment implements LoaderManager.Loa
                     // String locationSetting = Utility.getPreferredLocation(getActivity());
                     int cat_key =cursor.getColumnIndex(SantafeContract.DishEntry.COLUMN_CAT_KEY);
                     int dish_id = cursor.getColumnIndex(SantafeContract.DishEntry._ID);
+//
+//                    Intent intent = new Intent(getActivity(), DishDetails.class).setData(SantafeContract.DishEntry.buildDishCategoryWithId(
+//                            cursor.getLong(cat_key),
+//                           cursor.getLong(dish_id)
+//                            ));
 
-                    Intent intent = new Intent(getActivity(), DishDetails.class).setData(SantafeContract.DishEntry.buildDishCategoryWithId(
+                    ((Callback) getActivity()).onItemSelected(SantafeContract.DishEntry.buildDishCategoryWithId(
                             cursor.getLong(cat_key),
                             cursor.getLong(dish_id)
-                            ));
+                    ));
 
-                    startActivity(intent);
+//                    startActivity(intent);
                 }
             }
         });
@@ -119,7 +136,7 @@ public  class DetailedMenuFragment extends Fragment implements LoaderManager.Loa
 
         String str;
         Intent intent = getActivity().getIntent();
-        if (intent == null) {
+        if (intent == null|| intent.getData() == null) {
             return null;
         }
         str = intent.getDataString();
