@@ -57,6 +57,7 @@ public  class DetailFragment extends Fragment implements LoaderManager.LoaderCal
     private Uri mUri;
     private ShareActionProvider mShareActionProvider;
     private String DishTitle;
+    private String description;
    static final String VERB ="I am eating ";
    static final String HASH_TAG=" #SantaFe";
 
@@ -102,7 +103,7 @@ public  class DetailFragment extends Fragment implements LoaderManager.LoaderCal
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, VERB+DishTitle+HASH_TAG);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, VERB+DishTitle + description +HASH_TAG);
         return shareIntent;
     }
 
@@ -178,7 +179,7 @@ public  class DetailFragment extends Fragment implements LoaderManager.LoaderCal
         ccalTextView.setText(formattedCcal);
 
         // Set the description
-        String description = Utility.getDescriptionForUX(data);
+       description = Utility.getDescriptionForUX(data);
         TextView descTextView = (TextView)getView().findViewById(R.id.detail_dish_description);
         descTextView.setText(description);
 

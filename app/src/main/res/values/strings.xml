@@ -11,4 +11,8 @@
     <string name="title_activity_dish_details">DishDetails</string>
     <string name = "action_share">Share</string>
 
+    <string name = "about_us_title"> About </string>
+    <string name = "about_us_desc"> Very nice </string>
+    <string name = "address"> Kalinina street 8 </string>
+
 </resources>

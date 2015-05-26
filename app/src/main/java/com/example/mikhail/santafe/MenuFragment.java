@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.mikhail.santafe.data.SantafeContract;
+import com.example.mikhail.santafe.service.SantafeService;
 
 public  class MenuFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -154,8 +155,10 @@ public  class MenuFragment extends Fragment implements LoaderManager.LoaderCallb
 
 
     private void updateWeather() {
-        FetchMenuTask weatherTask = new FetchMenuTask(getActivity());
-        weatherTask.execute();
+        Intent intent = new Intent(getActivity(), SantafeService.class);
+        getActivity().startService(intent);
+//        FetchMenuTask weatherTask = new FetchMenuTask(getActivity());
+//        weatherTask.execute();
     }
 
     @Override
